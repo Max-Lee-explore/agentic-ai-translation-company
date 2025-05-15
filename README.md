@@ -42,20 +42,34 @@ An advanced translation system that uses multiple AI agents to provide high-qual
      AI_PROVIDER=your_provider_name  # e.g., openai, anthropic, google, xai
      AI_API_KEY=your_api_key_here
 
-     # Optional: Adjust these settings based on your needs
-     MAX_FILE_SIZE=26214400         # Maximum file size (25MB)
-     CHUNK_SIZE=4000               # Text chunk size for processing
-     CHUNK_OVERLAP=200             # Overlap between chunks
-     DEFAULT_MODEL=gpt-4           # Default model for translation
+     # Optional: Model settings
+     DEFAULT_MODEL=xai  # Change based on your provider:
+
+     # Optional: Temperature settings for different translators
+     # These control the creativity/randomness of translations
+     # Higher values (0.8) for creative content, lower (0.6) for technical
+     LITERARY_TEMPERATURE=0.8    # Creative content
+     LEGAL_TEMPERATURE=0.65     # Technical, precise
+     NEWS_TEMPERATURE=0.7       # Balanced
+     ACADEMIC_TEMPERATURE=0.7   # Balanced
+     TECHNICAL_TEMPERATURE=0.65 # Technical, precise
+     MEDICAL_TEMPERATURE=0.6    # Very precise
+     MARKETING_TEMPERATURE=0.8  # Creative content
+     BUSINESS_TEMPERATURE=0.7   # Balanced
+     MASTER_TEMPERATURE=0.7     # Balanced
      ```
 
-   - You can also customize temperature settings for different translators:
-     ```
-     LITERARY_TEMPERATURE=0.8
-     LEGAL_TEMPERATURE=0.65
-     NEWS_TEMPERATURE=0.7
-     # ... and more (see .env.example for all options)
-     ```
+   - **Provider-Specific Notes**:
+     * OpenAI: Best for general-purpose translation
+     * Anthropic: Strong in maintaining context and style
+     * Google: Good for technical and business content
+     * XAI: Specialized in creative and literary content
+
+   - **Temperature Settings**:
+     * 0.8: More creative, varied translations (Literary, Marketing)
+     * 0.7: Balanced approach (News, Academic, Business)
+     * 0.65: More precise, consistent (Legal, Technical)
+     * 0.6: Very precise, technical (Medical)
 
 4. **Run the Application**
    ```bash
