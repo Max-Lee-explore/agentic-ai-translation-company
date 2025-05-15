@@ -14,7 +14,7 @@ class TranslationApp:
         self.translation_pipeline = TranslationPipeline()
         self.supported_languages = get_supported_languages()
 
-    def process_translation(self, file, terminology_file, source_lang, target_lang):
+    def process_translation(self, file, terminology_file, source_lang, target_lang, translation_type, manager_brief):
         try:
             # Process the input file
             text_chunks = self.file_handler.process_file(file.name)
@@ -27,22 +27,27 @@ class TranslationApp:
                     target_lang
                 )
             
-            # Translate the text
+            # Translate the text with the manager's brief
             translated_text, translation_details = self.translation_pipeline.translate(
                 text_chunks,
                 source_lang,
-                target_lang
+                target_lang,
+                translation_type,
+                manager_brief
             )
             
             # Save the translated file
-            translated_file = self.file_handler.save_translated_file(translated_text, file.name)
+            translated_file = self.file_handler.save_translated_file(translated_text, file.name, translation_details)
             
             # Save the translation details
             details_file = self.file_handler.save_translation_details(translation_details, file.name)
             
             # Prepare status message
             status = f"Translation completed in {translation_details['total_time']} seconds.\n"
-            status += f"Total tokens used: {translation_details['total_tokens']}"
+            status += f"Total tokens used: {translation_details['total_tokens']}\n"
+            status += f"Translation type: {translation_details['translation_type']}\n"
+            status += f"Selected translators: {', '.join(translation_details['selected_translators'])}\n"
+            status += f"\nManager's Decision:\n{translation_details['manager_reasoning']}"
             
             return translated_file, details_file, status
             
@@ -78,6 +83,31 @@ def create_interface():
                     label="Target Language",
                     value="Spanish"
                 )
+                
+                # New UI elements for manager briefing
+                translation_type = gr.Dropdown(
+                    choices=[
+                        "Help me to decide",
+                        "Business",
+                        "Legal",
+                        "Literary",
+                        "Technical",
+                        "Medical",
+                        "News",
+                        "Academic",
+                        "Marketing",
+                        "Master Translator"
+                    ],
+                    label="Translation Type",
+                    value="Business"
+                )
+                
+                manager_brief = gr.Textbox(
+                    label="Brief for Translation Manager",
+                    placeholder="Describe your translation needs, style preferences, and any specific requirements...",
+                    lines=4
+                )
+                
                 translate_btn = gr.Button("Translate", variant="primary")
             
             with gr.Column():
@@ -87,7 +117,14 @@ def create_interface():
         
         translate_btn.click(
             fn=app.process_translation,
-            inputs=[file_input, terminology_file, source_lang, target_lang],
+            inputs=[
+                file_input,
+                terminology_file,
+                source_lang,
+                target_lang,
+                translation_type,
+                manager_brief
+            ],
             outputs=[translated_file, details_file, status]
         )
         

@@ -3,6 +3,18 @@ import os
 import time
 from dotenv import load_dotenv
 from terminology_handler import TerminologyHandler
+from manager_agent import ManagerAgent
+from specialized_translators import (
+    LiteraryTranslator,
+    LegalTranslator,
+    MasterTranslator,
+    NewsTranslator,
+    AcademicTranslator,
+    TechnicalTranslator,
+    MedicalTranslator,
+    MarketingTranslator,
+    BusinessTranslator
+)
 from utils import (
     format_prompt_for_translation,
     format_prompt_for_reflection,
@@ -18,6 +30,16 @@ class TranslationPipeline:
         if not self.api_key:
             raise ValueError("AI_API_KEY not found in environment variables")
         self.terminology_handler = TerminologyHandler()
+        self.manager_agent = ManagerAgent()
+        self.literary_translator = LiteraryTranslator()
+        self.legal_translator = LegalTranslator()
+        self.news_translator = NewsTranslator()
+        self.academic_translator = AcademicTranslator()
+        self.technical_translator = TechnicalTranslator()
+        self.medical_translator = MedicalTranslator()
+        self.marketing_translator = MarketingTranslator()
+        self.business_translator = BusinessTranslator()
+        self.master_translator = MasterTranslator()
         self.model = "grok-3-latest"
         self.system_role = "You are an expert and experienced translator who knows many languages."
         self.temperature = 0.8
@@ -54,7 +76,7 @@ class TranslationPipeline:
         """Set the terminology for translation."""
         self.terminology_handler.load_terminology(terminology_file, source_lang, target_lang)
 
-    def translate(self, text: List[str], source_lang: str, target_lang: str) -> Tuple[str, Dict]:
+    def translate(self, text: List[str], source_lang: str, target_lang: str, translation_type: str = "Business", brief: str = "") -> Tuple[str, Dict]:
         """
         Process text chunks through the translation pipeline.
         
@@ -62,6 +84,8 @@ class TranslationPipeline:
             text: List of text chunks to translate
             source_lang: Source language
             target_lang: Target language
+            translation_type: Type of translation (e.g., "Business", "Legal", "Literary")
+            brief: Detailed brief for the translation
             
         Returns:
             Tuple of (translated text, translation details)
@@ -71,15 +95,40 @@ class TranslationPipeline:
         self.translation_details = []
         self.total_tokens = 0
         
+        # If "Help me to decide" is selected, always analyze the first chunk
+        source_text_for_analysis = text[0] if translation_type == "Help me to decide" else (text[0] if not brief else "")
+        analysis = self.manager_agent.analyze_brief(translation_type, brief, source_text_for_analysis)
+        
+        # Use detected style if no brief was provided or if "Help me to decide" was selected
+        if (not brief or translation_type == "Help me to decide") and analysis.get("detected_style"):
+            translation_type = analysis["detected_style"]
+        
+        selected_translators = analysis["selected_translators"]
+        style_guidelines = analysis["style_guidelines"]
+        quality_requirements = analysis["quality_requirements"]
+        manager_reasoning = analysis["reasoning"]
+        
         for i, chunk in enumerate(text):
             chunk_details = {
                 "chunk_number": i + 1,
                 "original_text": chunk,
+                "translation_type": translation_type,
+                "selected_translators": selected_translators,
+                "style_guidelines": style_guidelines,
+                "quality_requirements": quality_requirements,
+                "manager_reasoning": manager_reasoning,
                 "steps": []
             }
             
-            # Step 1: Initial Translation
-            initial_translation = self._initial_translation(chunk, source_lang, target_lang)
+            # Step 1: Initial Translation with specialized translator
+            initial_translation = self._initial_translation_with_specialist(
+                chunk,
+                source_lang,
+                target_lang,
+                translation_type,
+                style_guidelines,
+                quality_requirements
+            )
             chunk_details["steps"].append({
                 "step": "Initial Translation",
                 "result": initial_translation
@@ -115,22 +164,32 @@ class TranslationPipeline:
         details = {
             "total_time": round(self.translation_time, 2),
             "total_tokens": self.total_tokens,
+            "translation_type": translation_type,
+            "selected_translators": selected_translators,
+            "style_guidelines": style_guidelines,
+            "quality_requirements": quality_requirements,
+            "manager_reasoning": manager_reasoning,
             "chunks": self.translation_details
         }
         
         return "\n".join(translated_chunks), details
 
-    def _initial_translation(self, text: str, source_lang: str, target_lang: str) -> str:
-        """
-        Initial translation step.
-        To be implemented with actual AI API call.
-        """
-        prompt = format_prompt_for_translation(text, source_lang, target_lang)
-        messages = [
-            {"role": "system", "content": self.system_role},
-            {"role": "user", "content": prompt}
-        ]
-        return self.call_xai_api(messages)
+    def _initial_translation_with_specialist(self, text: str, source_lang: str, target_lang: str, translation_type: str, style_guidelines: List[str] = None, quality_requirements: List[str] = None) -> str:
+        """Initial translation step using specialized translator."""
+        if translation_type.lower() == "literary":
+            return self.literary_translator.translate(text, source_lang, target_lang)
+        elif translation_type.lower() == "legal":
+            return self.legal_translator.translate(text, source_lang, target_lang)
+        elif translation_type.lower() == "master translator" or (style_guidelines and quality_requirements):
+            return self.master_translator.translate(text, source_lang, target_lang, style_guidelines, quality_requirements)
+        else:
+            # Use default translator for other types
+            prompt = format_prompt_for_translation(text, source_lang, target_lang)
+            messages = [
+                {"role": "system", "content": self.system_role},
+                {"role": "user", "content": prompt}
+            ]
+            return self.call_xai_api(messages)
 
     def _reflect_on_translation(self, original: str, translation: str) -> str:
         """

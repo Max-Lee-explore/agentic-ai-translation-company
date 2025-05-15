@@ -11,7 +11,7 @@ def get_supported_languages() -> list:
         "Italian",
         "Portuguese",
         "Russian",
-        "Chinese",
+        "Chinese (Simplified)",
         "Chinese (Traditional)",
         "Japanese",
         "Korean",
