@@ -258,8 +258,7 @@ agentic-ai-translation-company/
 ├── requirements.txt         # Project dependencies
 ├── .env.example            # Example environment configuration
 ├── LICENSE                 # Project license
-├── README.md              # Project documentation
-└── Examples/              # Example files and usage
+└── README.md              # Project documentation
 ```
 
 
