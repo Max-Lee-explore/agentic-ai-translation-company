@@ -1,5 +1,6 @@
 # Environment variables
 .env
+!.env.example
 
 # Python
 __pycache__/
@@ -105,8 +106,6 @@ coverage.xml
 *.pptx
 *.html
 
-# dotenv
-.env
 
 # Gradio cache
 gradio_cached_examples/
