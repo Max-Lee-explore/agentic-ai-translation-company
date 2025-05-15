@@ -9,7 +9,7 @@ class BaseTranslator:
         self.api_key = os.getenv("AI_API_KEY")
         if not self.api_key:
             raise ValueError("AI_API_KEY not found in environment variables")
-        self.model = "grok-3-latest"
+        self.model = os.getenv("DEFAULT_MODEL", "grok-3-latest")
         self.temperature = 0.7  # Default temperature
 
     def call_xai_api(self, messages: List[Dict]) -> str:
@@ -38,7 +38,7 @@ class BaseTranslator:
 class LiteraryTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.8  # Higher temperature for creative flexibility
+        self.temperature = float(os.getenv("LITERARY_TEMPERATURE", "0.8"))
         self.system_role = """You are a Literary Translation Specialist with expertise in translating creative works. 
 Your role is to preserve the artistic and emotional qualities of the original text while ensuring natural flow in the target language."""
 
@@ -70,7 +70,7 @@ Translation:"""
 class LegalTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.65  # Lower temperature for precision and consistency
+        self.temperature = float(os.getenv("LEGAL_TEMPERATURE", "0.65"))
         self.system_role = """You are a Legal Translation Specialist with expertise in translating legal documents. 
 Your role is to ensure precise and accurate translation of legal terminology while maintaining the formal and professional tone required in legal documents."""
 
@@ -102,7 +102,7 @@ Translation:"""
 class MasterTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.7  # Default balanced temperature
+        self.temperature = float(os.getenv("MASTER_TEMPERATURE", "0.7"))
         self.system_role = """You are a Master Translator with expertise in multiple translation styles and domains.
 You can adapt your translation approach based on the specific requirements and style guidelines provided."""
 
@@ -139,7 +139,7 @@ Translation:"""
 class NewsTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.7  # Balanced temperature for factual accuracy with natural flow
+        self.temperature = float(os.getenv("NEWS_TEMPERATURE", "0.7"))
         self.system_role = """You are a News Translation Specialist with expertise in translating news articles and journalistic content.
 Your role is to maintain journalistic style, accuracy, and immediacy while adapting content for different cultural contexts."""
 
@@ -171,7 +171,7 @@ Translation:"""
 class AcademicTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.7  # Balanced temperature for academic precision
+        self.temperature = float(os.getenv("ACADEMIC_TEMPERATURE", "0.7"))
         self.system_role = """You are an Academic Translation Specialist with expertise in translating scholarly works.
 Your role is to maintain academic rigor, precision, and formal tone while ensuring accessibility in the target language."""
 
@@ -203,7 +203,7 @@ Translation:"""
 class TechnicalTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.65  # Slightly lower temperature for technical accuracy
+        self.temperature = float(os.getenv("TECHNICAL_TEMPERATURE", "0.65"))
         self.system_role = """You are a Technical Translation Specialist with expertise in translating technical documentation.
 Your role is to maintain technical accuracy while ensuring clarity and usability in the target language."""
 
@@ -235,7 +235,7 @@ Translation:"""
 class MedicalTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.6  # Lower temperature for medical precision
+        self.temperature = float(os.getenv("MEDICAL_TEMPERATURE", "0.6"))
         self.system_role = """You are a Medical Translation Specialist with expertise in translating medical content.
 Your role is to maintain medical accuracy while ensuring clarity and sensitivity in the target language."""
 
@@ -267,7 +267,7 @@ Translation:"""
 class MarketingTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.8  # Higher temperature for creative marketing content
+        self.temperature = float(os.getenv("MARKETING_TEMPERATURE", "0.8"))
         self.system_role = """You are a Marketing Translation Specialist with expertise in translating marketing content.
 Your role is to maintain brand voice and marketing impact while adapting content for different cultural markets."""
 
@@ -299,7 +299,7 @@ Translation:"""
 class BusinessTranslator(BaseTranslator):
     def __init__(self):
         super().__init__()
-        self.temperature = 0.7  # Balanced temperature for professional business content
+        self.temperature = float(os.getenv("BUSINESS_TEMPERATURE", "0.7"))
         self.system_role = """You are a Business Translation Specialist with expertise in translating business content.
 Your role is to maintain professional tone and business accuracy while ensuring cultural appropriateness."""
 

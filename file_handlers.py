@@ -6,15 +6,17 @@ from pptx import Presentation
 import json
 from bs4 import BeautifulSoup
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
 
 class FileHandler:
     def __init__(self):
+        load_dotenv()
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=4000,
-            chunk_overlap=200,
+            chunk_size=int(os.getenv("CHUNK_SIZE", "4000")),
+            chunk_overlap=int(os.getenv("CHUNK_OVERLAP", "200")),
             length_function=len,
         )
-        self.MAX_FILE_SIZE = 25 * 1024 * 1024  # 25MB
+        self.MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", "26214400"))  # Default 25MB
         self.supported_extensions = {
             '.pdf': self._extract_pdf,
             '.docx': self._extract_docx,
