@@ -1,13 +1,13 @@
-# AI Translation System with Specialized Agents
+# Agentic AI Translation System with Specialized Translators and Editors
 
-An advanced translation system that uses multiple AI agents to provide high-quality, context-aware translations across various domains.
+An advanced translation system that uses multiple AI agents to provide high-quality, context-aware translations across various domains. This virtual translation company leverages specialized AI agents to deliver professional translation services.
 
 ## Quick Start
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/Translation_With_AI_Agents.git
-   cd Translation_With_AI_Agents
+   git clone https://github.com/Max-Lee-explore/agentic-ai-translation-company.git
+   cd agentic-ai-translation-company
    ```
 
 2. **Set Up Environment**
@@ -146,7 +146,7 @@ An advanced translation system that uses multiple AI agents to provide high-qual
    - Get translated document
    - View translation details
    - Check manager's reasoning
-   - Review quality metrics
+
 
 ## Technical Details
 
@@ -192,30 +192,27 @@ An advanced translation system that uses multiple AI agents to provide high-qual
    - Ensure all dependencies are installed
    - Check the console for error messages
 
-### Getting Help
-
-- Open an issue on GitHub
-- Check the [Issues](https://github.com/yourusername/Translation_With_AI_Agents/issues) page
-- Review the [Wiki](https://github.com/yourusername/Translation_With_AI_Agents/wiki) for detailed guides
 
 ## Development
 
 ### Project Structure
 ```
-Translation_With_AI_Agents/
-├── app.py                 # Main application file
-├── manager_agent.py       # Manager agent implementation
-├── translators/           # Translator implementations
-├── utils/                 # Utility functions
-├── requirements.txt       # Project dependencies
-├── .env                  # Environment variables (create this)
-└── README.md             # This file
+agentic-ai-translation-company/
+├── app.py                    # Main application file with Gradio interface
+├── manager_agent.py          # Manager agent implementation
+├── specialized_translators.py # All specialized translator implementations
+├── translation_agents.py     # Translation pipeline and agent coordination
+├── file_handlers.py         # File processing and management
+├── terminology_handler.py    # Terminology management and validation
+├── utils.py                 # Utility functions and helpers
+├── requirements.txt         # Project dependencies
+├── .env                    # Environment variables (create this)
+├── .env.example            # Example environment configuration
+├── LICENSE                 # Project license
+├── README.md              # Project documentation
+└── Examples/              # Example files and usage
 ```
 
-### Adding New Translators
-1. Create a new file in the `translators` directory
-2. Implement the translator class
-3. Add it to the translator registry in `app.py`
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -230,4 +227,9 @@ Key License Terms:
 - Modifications must be marked
 - Contact author for commercial licensing
 
-For commercial use or licensing inquiries, please contact the author. 
+For commercial use or licensing inquiries, please contact the author.
+
+## Author
+- **Max Lee**
+  - GitHub: [Max-Lee-explore](https://github.com/Max-Lee-explore)
+  - Project: [Agentic AI Translation Company](https://github.com/Max-Lee-explore/agentic-ai-translation-company) 
