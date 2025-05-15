@@ -26,9 +26,15 @@ An advanced translation system that uses multiple AI agents to provide high-qual
    ```
 
 3. **Configure API Key**
-   - Get your API key from [XAI Platform](https://xai-platform.com)
+   - Get your API key from your preferred AI provider:
+     * [OpenAI](https://platform.openai.com)
+     * [Anthropic](https://www.anthropic.com)
+     * [Google AI](https://ai.google.dev)
+     * [XAI Platform](https://xai-platform.com)
+     * Or any other compatible AI provider
    - Create a `.env` file in the project root:
      ```
+     AI_PROVIDER=your_provider_name  # e.g., openai, anthropic, google, xai
      AI_API_KEY=your_api_key_here
      ```
 
