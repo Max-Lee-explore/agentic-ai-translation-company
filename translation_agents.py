@@ -76,8 +76,6 @@ class TranslationPipeline:
         }
         try:
             response = requests.post(url, headers=headers, json=payload)
-            print("XAI API response status:", response.status_code)
-            print("XAI API response text:", response.text)
             response.raise_for_status()
             data = response.json()
             # Update token count
@@ -174,100 +172,115 @@ class TranslationPipeline:
     def translate(self, text: List[str], source_lang: str, target_lang: str, translation_type: str = "Business", brief: str = "") -> Tuple[str, Dict]:
         """
         Process text chunks through the translation pipeline.
-        
-        Args:
-            text: List of text chunks to translate
-            source_lang: Source language
-            target_lang: Target language
-            translation_type: Type of translation (e.g., "Business", "Legal", "Literary")
-            brief: Detailed brief for the translation
-            
-        Returns:
-            Tuple of (translated text, translation details)
         """
+        print("\nStarting translation process...")
+        print(f"Source language: {source_lang}")
+        print(f"Target language: {target_lang}")
+        print(f"Translation type: {translation_type}")
+        print(f"Provider: {self.provider}")
+        print(f"Model: {self.model}")
+        
         start_time = time.time()
         translated_chunks = []
         self.translation_details = []
         self.total_tokens = 0
         
-        # If "Help me to decide" is selected, always analyze the first chunk
-        source_text_for_analysis = text[0] if translation_type == "Help me to decide" else (text[0] if not brief else "")
-        analysis = self.manager_agent.analyze_brief(translation_type, brief, source_text_for_analysis)
-        
-        # Use detected style if no brief was provided or if "Help me to decide" was selected
-        if (not brief or translation_type == "Help me to decide") and analysis.get("detected_style"):
-            translation_type = analysis["detected_style"]
-        
-        selected_translators = analysis["selected_translators"]
-        style_guidelines = analysis["style_guidelines"]
-        quality_requirements = analysis["quality_requirements"]
-        manager_reasoning = analysis["reasoning"]
-        
-        for i, chunk in enumerate(text):
-            chunk_details = {
-                "chunk_number": i + 1,
-                "original_text": chunk,
+        try:
+            # If "Help me to decide" is selected, always analyze the first chunk
+            source_text_for_analysis = text[0] if translation_type == "Help me to decide" else (text[0] if not brief else "")
+            print("\nAnalyzing text...")
+            analysis = self.manager_agent.analyze_brief(translation_type, brief, source_text_for_analysis)
+            print(f"Analysis complete: {analysis}")
+            
+            # Use detected style if no brief was provided or if "Help me to decide" was selected
+            if (not brief or translation_type == "Help me to decide") and analysis.get("detected_style"):
+                translation_type = analysis["detected_style"]
+                print(f"Using detected style: {translation_type}")
+            
+            selected_translators = analysis["selected_translators"]
+            style_guidelines = analysis["style_guidelines"]
+            quality_requirements = analysis["quality_requirements"]
+            manager_reasoning = analysis["reasoning"]
+            
+            for i, chunk in enumerate(text):
+                print(f"\nProcessing chunk {i + 1} of {len(text)}")
+                chunk_details = {
+                    "chunk_number": i + 1,
+                    "original_text": chunk,
+                    "translation_type": translation_type,
+                    "selected_translators": selected_translators,
+                    "style_guidelines": style_guidelines,
+                    "quality_requirements": quality_requirements,
+                    "manager_reasoning": manager_reasoning,
+                    "steps": []
+                }
+                
+                try:
+                    # Step 1: Initial Translation
+                    print("Step 1: Initial Translation")
+                    initial_translation = self._initial_translation_with_specialist(
+                        chunk,
+                        source_lang,
+                        target_lang,
+                        translation_type,
+                        style_guidelines,
+                        quality_requirements
+                    )
+                    chunk_details["steps"].append({
+                        "step": "Initial Translation",
+                        "result": initial_translation
+                    })
+                    
+                    # Step 2: Reflection
+                    print("Step 2: Reflection")
+                    reflection = self._reflect_on_translation(chunk, initial_translation)
+                    chunk_details["steps"].append({
+                        "step": "Reflection",
+                        "result": reflection
+                    })
+                    
+                    # Step 3: Improved Translation
+                    print("Step 3: Improved Translation")
+                    improved_translation = self._improve_translation(chunk, initial_translation, reflection)
+                    chunk_details["steps"].append({
+                        "step": "Improved Translation",
+                        "result": improved_translation
+                    })
+                    
+                    # Step 4: Terminology Check
+                    print("Step 4: Terminology Check")
+                    final_translation = self._check_terminology(improved_translation, source_lang, target_lang)
+                    chunk_details["steps"].append({
+                        "step": "Terminology Check",
+                        "result": final_translation
+                    })
+                    
+                    translated_chunks.append(final_translation)
+                    self.translation_details.append(chunk_details)
+                    
+                except Exception as e:
+                    print(f"Error processing chunk {i + 1}: {str(e)}")
+                    raise
+            
+            self.translation_time = time.time() - start_time
+            
+            # Prepare translation details
+            details = {
+                "total_time": round(self.translation_time, 2),
+                "total_tokens": self.total_tokens,
                 "translation_type": translation_type,
                 "selected_translators": selected_translators,
                 "style_guidelines": style_guidelines,
                 "quality_requirements": quality_requirements,
                 "manager_reasoning": manager_reasoning,
-                "steps": []
+                "chunks": self.translation_details
             }
             
-            # Step 1: Initial Translation with specialized translator
-            initial_translation = self._initial_translation_with_specialist(
-                chunk,
-                source_lang,
-                target_lang,
-                translation_type,
-                style_guidelines,
-                quality_requirements
-            )
-            chunk_details["steps"].append({
-                "step": "Initial Translation",
-                "result": initial_translation
-            })
+            return "\n".join(translated_chunks), details
             
-            # Step 2: Reflection
-            reflection = self._reflect_on_translation(chunk, initial_translation)
-            chunk_details["steps"].append({
-                "step": "Reflection",
-                "result": reflection
-            })
-            
-            # Step 3: Improved Translation
-            improved_translation = self._improve_translation(chunk, initial_translation, reflection)
-            chunk_details["steps"].append({
-                "step": "Improved Translation",
-                "result": improved_translation
-            })
-            
-            # Step 4: Terminology Check
-            final_translation = self._check_terminology(improved_translation, source_lang, target_lang)
-            chunk_details["steps"].append({
-                "step": "Terminology Check",
-                "result": final_translation
-            })
-            
-            translated_chunks.append(final_translation)
-            self.translation_details.append(chunk_details)
-        
-        self.translation_time = time.time() - start_time
-        
-        # Prepare translation details
-        details = {
-            "total_time": round(self.translation_time, 2),
-            "total_tokens": self.total_tokens,
-            "translation_type": translation_type,
-            "selected_translators": selected_translators,
-            "style_guidelines": style_guidelines,
-            "quality_requirements": quality_requirements,
-            "manager_reasoning": manager_reasoning,
-            "chunks": self.translation_details
-        }
-        
-        return "\n".join(translated_chunks), details
+        except Exception as e:
+            print(f"\nTranslation failed: {str(e)}")
+            raise
 
     def _initial_translation_with_specialist(self, text: str, source_lang: str, target_lang: str, translation_type: str, style_guidelines: List[str] = None, quality_requirements: List[str] = None) -> str:
         """Initial translation step using specialized translator."""
