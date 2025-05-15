@@ -207,6 +207,7 @@ class TranslationPipeline:
                 chunk_details = {
                     "chunk_number": i + 1,
                     "original_text": chunk,
+                    "analyzed_text": source_text_for_analysis if i == 0 else None,  # Include analyzed text for first chunk
                     "translation_type": translation_type,
                     "selected_translators": selected_translators,
                     "style_guidelines": style_guidelines,
@@ -273,6 +274,7 @@ class TranslationPipeline:
                 "style_guidelines": style_guidelines,
                 "quality_requirements": quality_requirements,
                 "manager_reasoning": manager_reasoning,
+                "analyzed_text": source_text_for_analysis,  # Include analyzed text in main details
                 "chunks": self.translation_details
             }
             

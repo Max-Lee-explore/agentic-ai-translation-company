@@ -29,19 +29,19 @@ class ManagerAgent:
             - style_guidelines: Specific style requirements
             - quality_requirements: Quality standards to maintain
             - detected_style: Style detected from source text (if no brief or "Help me to decide")
-            - reasoning: Explanation of the manager's decision
+            - reasoning: Explanation of the manager's decision with reference to the user's brief (if any) and source text
         """
         # Define available translators
         available_translators = {
-            "Legal": "Legal Translator",
-            "Literary": "Literary Translator",
-            "Business": "Business Translator",
-            "Technical": "Technical Translator",
-            "Medical": "Medical Translator",
-            "News": "News Translator",
-            "Academic": "Academic Translator",
-            "Marketing": "Marketing Translator",
-            "Master Translator": "Master Translator"
+            "Literary": "For creative and artistic content",
+            "Legal": "For legal documents and contracts",
+            "News": "For journalistic content",
+            "Academic": "For scholarly and research content",
+            "Technical": "For technical documentation",
+            "Medical": "For medical and healthcare content",
+            "Marketing": "For promotional and marketing content",
+            "Business": "For business and corporate content",
+            "Master": "For complex or mixed content types"
         }
 
         if translation_type == "Help me to decide" or (not brief and source_text):
@@ -59,7 +59,12 @@ Please provide:
 2. A list of specialized translators needed (prioritize using available translators)
 3. Specific style guidelines to follow
 4. Quality requirements and standards to maintain
-5. Detailed reasoning for your decisions, including why you chose this particular translator type
+5. Detailed reasoning for your decisions, including:
+   - User's brief (if any)
+   - Why you chose this particular translator type
+   - How the text's content (e.g., art group introduction, organization name) influenced your decision
+   - Any specific cultural or domain-specific considerations
+   - How to handle special elements (e.g., organization names, abbreviations)
 
 Format your response as a JSON object with the following structure:
 {{
@@ -83,7 +88,12 @@ Please provide:
 1. A list of specialized translators needed (prioritize using available translators)
 2. Specific style guidelines to follow
 3. Quality requirements and standards to maintain
-4. Detailed reasoning for your decisions
+4. Detailed reasoning for your decisions, including:
+   - Cosideration of user's brief (if any)
+   - Why you chose this particular translator type
+   - How the brief's requirements influenced your decision
+   - Any specific cultural or domain-specific considerations
+   - How to handle special elements mentioned in the brief
 
 Format your response as a JSON object with the following structure:
 {{
