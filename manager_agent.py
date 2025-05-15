@@ -9,7 +9,8 @@ class ManagerAgent:
         self.api_key = os.getenv("AI_API_KEY")
         if not self.api_key:
             raise ValueError("AI_API_KEY not found in environment variables")
-        self.model = "grok-3-latest"
+        self.provider = os.getenv("AI_PROVIDER", "xai").lower()
+        self.model = os.getenv("DEFAULT_MODEL", "gpt-4")
         self.temperature = 0.7
 
     def analyze_brief(self, translation_type: str, brief: str, source_text: str = "") -> Dict:
@@ -97,7 +98,7 @@ Format your response as a JSON object with the following structure:
             {"role": "user", "content": prompt}
         ]
 
-        response = self.call_xai_api(messages)
+        response = self.call_ai_api(messages)
         analysis = self._parse_response(response)
         
         # Ensure we're using available translators
@@ -164,7 +165,20 @@ Format your response as a JSON object with the following structure:
         analysis = self.analyze_brief(translation_type, brief)
         return analysis["quality_requirements"]
 
-    def call_xai_api(self, messages: List[Dict]) -> str:
+    def call_ai_api(self, messages: List[Dict]) -> str:
+        """Call the appropriate AI API based on the provider."""
+        if self.provider == "xai":
+            return self._call_xai_api(messages)
+        elif self.provider == "openai":
+            return self._call_openai_api(messages)
+        elif self.provider == "anthropic":
+            return self._call_anthropic_api(messages)
+        elif self.provider == "google":
+            return self._call_google_api(messages)
+        else:
+            raise ValueError(f"Unsupported AI provider: {self.provider}")
+
+    def _call_xai_api(self, messages: List[Dict]) -> str:
         """Call the XAI API with the given messages."""
         url = "https://api.x.ai/v1/chat/completions"
         headers = {
@@ -185,6 +199,81 @@ Format your response as a JSON object with the following structure:
             return data["choices"][0]["message"]["content"]
         except Exception as e:
             print("Error calling XAI API:", e)
+            raise
+
+    def _call_openai_api(self, messages: List[Dict]) -> str:
+        """Call the OpenAI API with the given messages."""
+        url = "https://api.openai.com/v1/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        payload = {
+            "messages": messages,
+            "model": self.model,
+            "temperature": self.temperature
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            print("Error calling OpenAI API:", e)
+            raise
+
+    def _call_anthropic_api(self, messages: List[Dict]) -> str:
+        """Call the Anthropic API with the given messages."""
+        url = "https://api.anthropic.com/v1/messages"
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": self.api_key,
+            "anthropic-version": "2023-06-01"
+        }
+        
+        # Convert messages to Anthropic format
+        prompt = "\n".join([f"{m['role']}: {m['content']}" for m in messages])
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "temperature": self.temperature,
+            "max_tokens": 4000
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            return data["content"][0]["text"]
+        except Exception as e:
+            print("Error calling Anthropic API:", e)
+            raise
+
+    def _call_google_api(self, messages: List[Dict]) -> str:
+        """Call the Google AI API with the given messages."""
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": self.api_key
+        }
+        
+        # Convert messages to Google format
+        contents = [{"parts": [{"text": m["content"]}]} for m in messages]
+        payload = {
+            "contents": contents,
+            "generationConfig": {
+                "temperature": self.temperature
+            }
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            print("Error calling Google AI API:", e)
             raise
 
     def _parse_response(self, response: str) -> Dict:

@@ -29,6 +29,8 @@ class TranslationPipeline:
         self.api_key = os.getenv("AI_API_KEY")
         if not self.api_key:
             raise ValueError("AI_API_KEY not found in environment variables")
+        self.provider = os.getenv("AI_PROVIDER", "xai").lower()
+        self.model = os.getenv("DEFAULT_MODEL", "gpt-4")
         self.terminology_handler = TerminologyHandler()
         self.manager_agent = ManagerAgent()
         self.literary_translator = LiteraryTranslator()
@@ -40,14 +42,27 @@ class TranslationPipeline:
         self.marketing_translator = MarketingTranslator()
         self.business_translator = BusinessTranslator()
         self.master_translator = MasterTranslator()
-        self.model = "grok-3-latest"
         self.system_role = "You are an expert and experienced translator who knows many languages."
         self.temperature = 0.8
         self.total_tokens = 0
         self.translation_time = 0
         self.translation_details = []
 
-    def call_xai_api(self, messages):
+    def call_ai_api(self, messages):
+        """Call the appropriate AI API based on the provider."""
+        if self.provider == "xai":
+            return self._call_xai_api(messages)
+        elif self.provider == "openai":
+            return self._call_openai_api(messages)
+        elif self.provider == "anthropic":
+            return self._call_anthropic_api(messages)
+        elif self.provider == "google":
+            return self._call_google_api(messages)
+        else:
+            raise ValueError(f"Unsupported AI provider: {self.provider}")
+
+    def _call_xai_api(self, messages):
+        """Call the XAI API with the given messages."""
         url = "https://api.x.ai/v1/chat/completions"
         headers = {
             "Content-Type": "application/json",
@@ -70,6 +85,86 @@ class TranslationPipeline:
             return data["choices"][0]["message"]["content"]
         except Exception as e:
             print("Error calling XAI API:", e)
+            raise
+
+    def _call_openai_api(self, messages):
+        """Call the OpenAI API with the given messages."""
+        url = "https://api.openai.com/v1/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        payload = {
+            "messages": messages,
+            "model": self.model,
+            "temperature": self.temperature
+        }
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            # Update token count
+            self.total_tokens += data.get("usage", {}).get("total_tokens", 0)
+            return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            print("Error calling OpenAI API:", e)
+            raise
+
+    def _call_anthropic_api(self, messages):
+        """Call the Anthropic API with the given messages."""
+        url = "https://api.anthropic.com/v1/messages"
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": self.api_key,
+            "anthropic-version": "2023-06-01"
+        }
+        
+        # Convert messages to Anthropic format
+        prompt = "\n".join([f"{m['role']}: {m['content']}" for m in messages])
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "temperature": self.temperature,
+            "max_tokens": 4000
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            # Update token count (approximate)
+            self.total_tokens += len(prompt.split()) + len(data["content"][0]["text"].split())
+            return data["content"][0]["text"]
+        except Exception as e:
+            print("Error calling Anthropic API:", e)
+            raise
+
+    def _call_google_api(self, messages):
+        """Call the Google AI API with the given messages."""
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": self.api_key
+        }
+        
+        # Convert messages to Google format
+        contents = [{"parts": [{"text": m["content"]}]} for m in messages]
+        payload = {
+            "contents": contents,
+            "generationConfig": {
+                "temperature": self.temperature
+            }
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            # Update token count (approximate)
+            self.total_tokens += sum(len(m["content"].split()) for m in messages) + len(data["candidates"][0]["content"]["parts"][0]["text"].split())
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            print("Error calling Google AI API:", e)
             raise
 
     def set_terminology(self, terminology_file: str, source_lang: str, target_lang: str) -> None:
@@ -189,7 +284,7 @@ class TranslationPipeline:
                 {"role": "system", "content": self.system_role},
                 {"role": "user", "content": prompt}
             ]
-            return self.call_xai_api(messages)
+            return self.call_ai_api(messages)
 
     def _reflect_on_translation(self, original: str, translation: str) -> str:
         """
@@ -201,7 +296,7 @@ class TranslationPipeline:
             {"role": "system", "content": self.system_role},
             {"role": "user", "content": prompt}
         ]
-        return self.call_xai_api(messages)
+        return self.call_ai_api(messages)
 
     def _improve_translation(self, original: str, initial_translation: str, reflection: str) -> str:
         """
@@ -213,7 +308,7 @@ class TranslationPipeline:
             {"role": "system", "content": self.system_role},
             {"role": "user", "content": prompt}
         ]
-        return self.call_xai_api(messages)
+        return self.call_ai_api(messages)
 
     def _check_terminology(self, translation: str, source_lang: str, target_lang: str) -> str:
         """
@@ -232,4 +327,4 @@ class TranslationPipeline:
             {"role": "system", "content": self.system_role},
             {"role": "user", "content": prompt}
         ]
-        return self.call_xai_api(messages) 
+        return self.call_ai_api(messages) 

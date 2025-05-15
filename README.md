@@ -25,17 +25,36 @@ An advanced translation system that uses multiple AI agents to provide high-qual
    pip install -r requirements.txt
    ```
 
-3. **Configure API Key**
+3. **Configure Environment**
+   - Copy `.env.example` to create your `.env` file:
+     ```bash
+     cp .env.example .env
+     ```
    - Get your API key from your preferred AI provider:
      * [OpenAI](https://platform.openai.com)
      * [Anthropic](https://www.anthropic.com)
      * [Google AI](https://ai.google.dev)
      * [XAI Platform](https://xai-platform.com)
      * Or any other compatible AI provider
-   - Create a `.env` file in the project root:
+   - Edit the `.env` file with your settings:
      ```
+     # Required: Choose your AI provider and add your API key
      AI_PROVIDER=your_provider_name  # e.g., openai, anthropic, google, xai
      AI_API_KEY=your_api_key_here
+
+     # Optional: Adjust these settings based on your needs
+     MAX_FILE_SIZE=26214400         # Maximum file size (25MB)
+     CHUNK_SIZE=4000               # Text chunk size for processing
+     CHUNK_OVERLAP=200             # Overlap between chunks
+     DEFAULT_MODEL=gpt-4           # Default model for translation
+     ```
+
+   - You can also customize temperature settings for different translators:
+     ```
+     LITERARY_TEMPERATURE=0.8
+     LEGAL_TEMPERATURE=0.65
+     NEWS_TEMPERATURE=0.7
+     # ... and more (see .env.example for all options)
      ```
 
 4. **Run the Application**
@@ -223,7 +242,6 @@ agentic-ai-translation-company/
 ├── terminology_handler.py    # Terminology management and validation
 ├── utils.py                 # Utility functions and helpers
 ├── requirements.txt         # Project dependencies
-├── .env                    # Environment variables (create this)
 ├── .env.example            # Example environment configuration
 ├── LICENSE                 # Project license
 ├── README.md              # Project documentation
