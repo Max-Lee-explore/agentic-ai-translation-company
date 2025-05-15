@@ -48,6 +48,17 @@ An advanced translation system that uses multiple AI agents to provide high-qual
 ## Features
 
 ### Specialized Translation Agents
+
+- **Manager Agent** (Temperature: 0.7)
+  - Analyzes content and selects appropriate translator
+  - Coordinates the translation pipeline
+  - Provides detailed reasoning for decisions
+  - Sets specific guidelines for each translation
+  - Ensures quality and consistency across translations
+  - Manages terminology and style guidelines
+  - Handles complex translation requirements
+  - Makes intelligent decisions about translation approach
+
 - **Literary Translator** (Temperature: 0.8)
   - Preserves artistic and emotional qualities
   - Maintains metaphors and cultural references
