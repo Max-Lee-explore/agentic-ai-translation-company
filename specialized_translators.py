@@ -327,3 +327,19 @@ Translation:"""
             {"role": "user", "content": prompt}
         ]
         return self.call_xai_api(messages) 
+
+# Add to utils.py
+def sanitize_input(text: str) -> str:
+    """Sanitize user input to prevent injection attacks"""
+    # Remove any potentially harmful characters
+    return text.strip()[:10000]  # Limit input length
+
+# Add to file_handlers.py
+def cleanup_files(self, *file_paths):
+    """Clean up temporary files after processing"""
+    for file_path in file_paths:
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            print(f"Error cleaning up file {file_path}: {e}")

@@ -14,6 +14,7 @@ class FileHandler:
             chunk_overlap=200,
             length_function=len,
         )
+        self.MAX_FILE_SIZE = 25 * 1024 * 1024  # 25MB
         self.supported_extensions = {
             '.pdf': self._extract_pdf,
             '.docx': self._extract_docx,
@@ -24,15 +25,27 @@ class FileHandler:
             '.md': self._extract_txt
         }
 
-    def process_file(self, file_path: str) -> List[str]:
-        """Process the uploaded file and return extracted text chunks."""
+    def validate_file(self, file_path: str) -> bool:
+        """Validate file size and type."""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
-
+        
+        file_size = os.path.getsize(file_path)
+        if file_size > self.MAX_FILE_SIZE:
+            raise ValueError(f"File size exceeds the maximum limit of 25MB. Current size: {file_size / (1024*1024):.2f}MB")
+        
         file_ext = os.path.splitext(file_path)[1].lower()
         if file_ext not in self.supported_extensions:
             raise ValueError(f"Unsupported file type: {file_ext}")
+        
+        return True
 
+    def process_file(self, file_path: str) -> List[str]:
+        """Process the uploaded file and return extracted text chunks."""
+        # Validate file before processing
+        self.validate_file(file_path)
+        
+        file_ext = os.path.splitext(file_path)[1].lower()
         # Extract text using appropriate handler
         text = self.supported_extensions[file_ext](file_path)
         

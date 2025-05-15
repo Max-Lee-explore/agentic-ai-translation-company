@@ -2,6 +2,43 @@
 
 An advanced translation system that uses multiple AI agents to provide high-quality, context-aware translations across various domains.
 
+## Quick Start
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/Translation_With_AI_Agents.git
+   cd Translation_With_AI_Agents
+   ```
+
+2. **Set Up Environment**
+   ```bash
+   # Create a virtual environment (recommended)
+   python -m venv venv
+   
+   # Activate virtual environment
+   # On Windows:
+   venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
+   ```
+
+3. **Configure API Key**
+   - Get your API key from [XAI Platform](https://xai-platform.com)
+   - Create a `.env` file in the project root:
+     ```
+     AI_API_KEY=your_api_key_here
+     ```
+
+4. **Run the Application**
+   ```bash
+   python app.py
+   ```
+   - Open the local URL shown in your terminal (usually http://127.0.0.1:7860)
+   - The application will run on your local machine
+
 ## Features
 
 ### Specialized Translation Agents
@@ -130,14 +167,55 @@ An advanced translation system that uses multiple AI agents to provide high-qual
 - Required packages (see requirements.txt)
 - XAI API key
 
-## Installation
-1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Set up environment variables:
-   ```
-   AI_API_KEY=your_api_key_here
-   ```
-4. Run the application: `python app.py`
+## Troubleshooting
+
+### Common Issues
+
+1. **API Key Not Working**
+   - Ensure your `.env` file is in the project root
+   - Check if the API key is valid
+   - Verify you have sufficient API credits
+
+2. **Dependencies Installation Fails**
+   - Make sure you have Python 3.8 or higher
+   - Try updating pip: `pip install --upgrade pip`
+   - Install build tools if needed:
+     ```bash
+     # On Windows
+     pip install wheel
+     # On macOS
+     xcode-select --install
+     ```
+
+3. **Application Won't Start**
+   - Check if port 7860 is available
+   - Ensure all dependencies are installed
+   - Check the console for error messages
+
+### Getting Help
+
+- Open an issue on GitHub
+- Check the [Issues](https://github.com/yourusername/Translation_With_AI_Agents/issues) page
+- Review the [Wiki](https://github.com/yourusername/Translation_With_AI_Agents/wiki) for detailed guides
+
+## Development
+
+### Project Structure
+```
+Translation_With_AI_Agents/
+├── app.py                 # Main application file
+├── manager_agent.py       # Manager agent implementation
+├── translators/           # Translator implementations
+├── utils/                 # Utility functions
+├── requirements.txt       # Project dependencies
+├── .env                  # Environment variables (create this)
+└── README.md             # This file
+```
+
+### Adding New Translators
+1. Create a new file in the `translators` directory
+2. Implement the translator class
+3. Add it to the translator registry in `app.py`
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
