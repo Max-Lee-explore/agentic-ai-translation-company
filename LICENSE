@@ -33,7 +33,40 @@ subject to the following conditions:
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-5. Commercial License:
+5. Translation-Specific Disclaimers:
+   - The Software provides AI-powered translations without guarantees of accuracy or quality.
+   - All translations should be reviewed by qualified human translators for critical content.
+   - The author is not responsible for:
+     * Translation accuracy or quality
+     * Cultural appropriateness of translations
+     * Technical or domain-specific accuracy
+     * AI provider service quality or availability
+     * API availability or reliability
+     * AI model behavior or output
+   - Users are responsible for:
+     * Verifying translations for their specific use case
+     * Ensuring translations meet their quality requirements
+     * Reviewing translations for accuracy and appropriateness
+   - The Software is not suitable for:
+     * Critical medical, legal, or financial content
+     * Content requiring official certification
+     * Content requiring guaranteed accuracy
+     * Content requiring human verification
+     * Content with strict regulatory requirements
+
+6. AI Provider Disclaimer:
+   - The Software relies on third-party AI providers for translation services.
+   - The author is not responsible for:
+     * AI provider service quality or availability
+     * API rate limits or restrictions
+     * Changes to AI provider services or APIs
+     * Costs associated with AI provider usage
+   - Users are responsible for:
+     * Managing their AI provider accounts and API keys
+     * Complying with AI provider terms of service
+     * Monitoring their AI provider usage and costs
+
+7. Commercial License:
    For commercial use, please contact the author to obtain a commercial license.
 
 Contact Information:

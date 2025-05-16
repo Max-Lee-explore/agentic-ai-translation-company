@@ -2,6 +2,10 @@
 
 An advanced translation system that uses multiple AI agents to provide high-quality, context-aware translations across various domains. This virtual translation company leverages specialized AI agents to deliver professional translation services.
 
+## Acknowledgments
+
+This project was inspired by [Andrew Ng's Translation Agent](https://github.com/andrewyng/translation-agent), which demonstrates the power of agentic workflows in machine translation. I am grateful to Andrew Ng and his collaborators for their pioneering work in this field.
+
 ## Quick Start
 
 1. **Clone the Repository**
@@ -215,33 +219,7 @@ An advanced translation system that uses multiple AI agents to provide high-qual
 ## Requirements
 - Python 3.8+
 - Required packages (see requirements.txt)
-- XAI API key
-
-## Troubleshooting
-
-### Common Issues
-
-1. **API Key Not Working**
-   - Ensure your `.env` file is in the project root
-   - Check if the API key is valid
-   - Verify you have sufficient API credits
-
-2. **Dependencies Installation Fails**
-   - Make sure you have Python 3.8 or higher
-   - Try updating pip: `pip install --upgrade pip`
-   - Install build tools if needed:
-     ```bash
-     # On Windows
-     pip install wheel
-     # On macOS
-     xcode-select --install
-     ```
-
-3. **Application Won't Start**
-   - Check if port 7860 is available
-   - Ensure all dependencies are installed
-   - Check the console for error messages
-
+- API key from AI provider
 
 ## Development
 
