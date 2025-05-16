@@ -54,7 +54,7 @@ This project was inspired by [Andrew Ng's Translation Agent](https://github.com/
      # Optional: Temperature settings for different translators
      # These control the creativity/randomness of translations
      # Higher values (0.8) for creative content, lower (0.6) for technical
-     LITERARY_TEMPERATURE=0.8    # Creative content
+     LITERARY_TEMPERATURE=0.8   # Creative content
      LEGAL_TEMPERATURE=0.65     # Technical, precise
      NEWS_TEMPERATURE=0.7       # Balanced
      ACADEMIC_TEMPERATURE=0.7   # Balanced
@@ -223,17 +223,17 @@ This project was inspired by [Andrew Ng's Translation Agent](https://github.com/
 ### Project Structure
 ```
 agentic-ai-translation-company/
-├── app.py                    # Main application file with Gradio interface
-├── manager_agent.py          # Manager agent implementation
-├── specialized_translators.py # All specialized translator implementations
-├── translation_agents.py     # Translation pipeline and agent coordination
-├── file_handlers.py         # File processing and management
-├── terminology_handler.py    # Terminology management and validation
-├── utils.py                 # Utility functions and helpers
-├── requirements.txt         # Project dependencies
-├── .env.example            # Example environment configuration
-├── LICENSE                 # Project license
-└── README.md              # Project documentation
+├── app.py                      # Main application file with Gradio interface
+├── manager_agent.py            # Manager agent implementation
+├── specialized_translators.py  # All specialized translator implementations
+├── translation_agents.py       # Translation pipeline and agent coordination
+├── file_handlers.py            # File processing and management
+├── terminology_handler.py      # Terminology management and validation
+├── utils.py                    # Utility functions and helpers
+├── requirements.txt            # Project dependencies
+├── .env.example                # Example environment configuration
+├── LICENSE                     # Project license
+└── README.md                   # Project documentation
 ```
 
 
