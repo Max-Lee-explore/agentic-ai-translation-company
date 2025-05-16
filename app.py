@@ -4,9 +4,14 @@ from dotenv import load_dotenv
 from file_handlers import FileHandler
 from translation_agents import TranslationPipeline
 from utils import get_supported_languages
+import base64
 
 # Load environment variables
 load_dotenv()
+
+def get_base64_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode()
 
 class TranslationApp:
     def __init__(self):
@@ -57,9 +62,29 @@ class TranslationApp:
 def create_interface():
     app = TranslationApp()
     
-    with gr.Blocks(title="Agentic AI Translation System", theme=gr.themes.Soft()) as interface:
-        gr.Markdown("# Agentic AI Translation System")
-        gr.Markdown("Upload your file and select languages to translate")
+    # Get base64 encoded background image
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    bg_image_path = os.path.join(current_dir, 'images', 'bg.png')
+    bg_image_base64 = get_base64_image(bg_image_path)
+    
+    # Custom CSS for background image
+    custom_css = f"""
+    .gradio-container {{
+        background-image: url('data:image/png;base64,{bg_image_base64}');
+        background-size: 100% auto;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }}
+    """
+    
+    with gr.Blocks(title="Agentic AI Translation System", theme=gr.themes.Soft(), css=custom_css) as interface:
+        gr.Markdown("<h1 style='text-align: center;'>Agentic AI Translation System</h1>")
+        gr.Markdown("### Upload your file and select languages to translate")
         
         with gr.Row():
             with gr.Column():
@@ -114,6 +139,22 @@ def create_interface():
                 translated_file = gr.File(label="Translated File")
                 details_file = gr.File(label="Translation Details")
                 status = gr.Textbox(label="Status", interactive=False)
+                
+                gr.Markdown("""
+                ### Supported File Formats
+                - PDF (.pdf)
+                - Microsoft Word (.docx)
+                - Microsoft PowerPoint (.pptx)
+                - JSON (.json)
+                - HTML (.html)
+                - Plain Text (.txt, .md)
+
+                ### Terminology List Formats
+                - CSV (.csv) - Two columns: source term, target term
+                - JSON (.json) - Dictionary of terms
+                - Excel (.xlsx, .xls) - Two columns: source term, target term
+                - Text (.txt) - Tab or colon-separated terms
+                """)
         
         translate_btn.click(
             fn=app.process_translation,
@@ -128,21 +169,8 @@ def create_interface():
             outputs=[translated_file, details_file, status]
         )
         
-        gr.Markdown("""
-        ### Supported File Formats
-        - PDF (.pdf)
-        - Microsoft Word (.docx)
-        - Microsoft PowerPoint (.pptx)
-        - JSON (.json)
-        - HTML (.html)
-        - Plain Text (.txt, .md)
-
-        ### Terminology List Formats
-        - CSV (.csv) - Two columns: source term, target term
-        - JSON (.json) - Dictionary of terms
-        - Excel (.xlsx, .xls) - Two columns: source term, target term
-        - Text (.txt) - Tab or colon-separated terms
-        """)
+        gr.Markdown("---")  # Add a horizontal line
+        gr.Markdown("### Created by Max Lee")
     
     return interface
 
