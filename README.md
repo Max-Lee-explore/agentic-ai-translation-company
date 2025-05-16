@@ -64,13 +64,6 @@ This project was inspired by [Andrew Ng's Translation Agent](https://github.com/
      BUSINESS_TEMPERATURE=0.7   # Balanced
      MASTER_TEMPERATURE=0.7     # Balanced
      ```
-
-   - **Provider-Specific Notes**:
-     * OpenAI: Best for general-purpose translation
-     * Anthropic: Strong in maintaining context and style
-     * Google: Good for technical and business content
-     * XAI: Specialized in creative and literary content
-
    - **Temperature Settings**:
      * 0.8: More creative, varied translations (Literary, Marketing)
      * 0.7: Balanced approach (News, Academic, Business)
@@ -211,6 +204,8 @@ This project was inspired by [Andrew Ng's Translation Agent](https://github.com/
 - **Manager Agent**: Decision-making and analysis
 - **Translation Pipeline**: Multi-step quality assurance
 - **Terminology Handler**: Consistent terminology management
+
+![Translation Workflow Architecture](images/workflow.png)
 
 ### Temperature Settings
 - Creative Content (0.8): Literary, Marketing
