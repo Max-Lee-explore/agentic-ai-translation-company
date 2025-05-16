@@ -84,6 +84,7 @@ def create_interface():
     
     with gr.Blocks(title="Agentic AI Translation System", theme=gr.themes.Soft(), css=custom_css) as interface:
         gr.Markdown("<h1 style='text-align: center;'>Agentic AI Translation System</h1>")
+        gr.Markdown("<p style='text-align: center; font-size: 1.2em; color: #FF6B00;'>From Manager to Proofreader: An agentic AI translation system built on collaboration, role-based expertise, and full-stack delivery.</p>")
         gr.Markdown("### Upload your file and select languages to translate")
         
         with gr.Row():
