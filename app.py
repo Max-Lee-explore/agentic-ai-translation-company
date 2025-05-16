@@ -57,8 +57,8 @@ class TranslationApp:
 def create_interface():
     app = TranslationApp()
     
-    with gr.Blocks(title="AI Translation System", theme=gr.themes.Soft()) as interface:
-        gr.Markdown("# AI-Powered Translation System")
+    with gr.Blocks(title="Agentic AI Translation System", theme=gr.themes.Soft()) as interface:
+        gr.Markdown("# Agentic AI Translation System")
         gr.Markdown("Upload your file and select languages to translate")
         
         with gr.Row():
