@@ -8,6 +8,9 @@ An advanced translation system that uses multiple AI agents to provide high-qual
 
 This project was inspired by [Andrew Ng's Translation Agent](https://github.com/andrewyng/translation-agent), which demonstrates the power of agentic workflows in machine translation. I am grateful to Andrew Ng and his collaborators for their pioneering work in this field.
 
+## Interface Preview
+![Interface Preview](images/interface.png)
+
 ## Quick Start
 
 1. **Clone the Repository**
