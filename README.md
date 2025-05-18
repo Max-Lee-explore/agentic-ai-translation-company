@@ -1,6 +1,8 @@
 # Agentic AI Translation System with Specialized Translators and Editors
 
-![Agentic AI Translation System](images/pixel-company.png)
+<div align="center">
+  <img src="images/pixel-company.png" alt="Agentic AI Translation System" width="50%" />
+</div>
 
 An advanced translation system that uses multiple AI agents to provide high-quality, context-aware translations across various domains. This virtual translation company leverages specialized AI agents to deliver professional translation services.
 
