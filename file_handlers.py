@@ -7,6 +7,9 @@ import json
 from bs4 import BeautifulSoup
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
+from pptx.enum.shapes import MSO_SHAPE_TYPE
+from pptx.util import Inches
+import io
 
 class FileHandler:
     def __init__(self):
@@ -70,13 +73,33 @@ class FileHandler:
         return "\n".join([paragraph.text for paragraph in doc.paragraphs])
 
     def _extract_pptx(self, file_path: str) -> str:
-        """Extract text from PPTX file."""
+        """Extract text and image info from PPTX file."""
         prs = Presentation(file_path)
+        self._pptx_images = []  # Store image info for preservation
         text = []
-        for slide in prs.slides:
-            for shape in slide.shapes:
-                if hasattr(shape, "text"):
+        for slide_idx, slide in enumerate(prs.slides):
+            for shape_idx, shape in enumerate(slide.shapes):
+                if hasattr(shape, "text") and shape.text.strip():
                     text.append(shape.text)
+                # Preserve images
+                if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+                    image = shape.image
+                    image_bytes = image.blob
+                    image_ext = image.ext
+                    left = shape.left
+                    top = shape.top
+                    width = shape.width
+                    height = shape.height
+                    self._pptx_images.append({
+                        "slide_idx": slide_idx,
+                        "shape_idx": shape_idx,
+                        "image_bytes": image_bytes,
+                        "image_ext": image_ext,
+                        "left": left,
+                        "top": top,
+                        "width": width,
+                        "height": height
+                    })
         return "\n".join(text)
 
     def _extract_json(self, file_path: str) -> str:
@@ -133,6 +156,32 @@ class FileHandler:
         elif ext.lower() == '.html':
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(f"<html><body>{'<br><br>'.join(text_to_save)}</body></html>")
+        elif ext.lower() == '.pptx':
+            prs = Presentation(original_file)
+            # Remove all text and images from slides
+            for slide in prs.slides:
+                for shape in list(slide.shapes):
+                    sp_type = getattr(shape, 'shape_type', None)
+                    if hasattr(shape, 'text') or sp_type == MSO_SHAPE_TYPE.PICTURE:
+                        slide.shapes._spTree.remove(shape._element)
+            # Add translated text and restore images
+            for i, para in enumerate(text_to_save):
+                if i < len(prs.slides):
+                    slide = prs.slides[i]
+                    slide.shapes.add_textbox(Inches(1), Inches(1), Inches(8), Inches(1.5)).text = para
+            # Restore images
+            if hasattr(self, '_pptx_images'):
+                for img in self._pptx_images:
+                    slide = prs.slides[img["slide_idx"]]
+                    image_stream = io.BytesIO(img["image_bytes"])
+                    slide.shapes.add_picture(
+                        image_stream,
+                        img["left"],
+                        img["top"],
+                        img["width"],
+                        img["height"]
+                    )
+            prs.save(output_file)
         else:
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write('\n\n'.join(text_to_save))
