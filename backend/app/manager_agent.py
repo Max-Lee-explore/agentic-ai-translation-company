@@ -4,14 +4,12 @@ from dotenv import load_dotenv
 import requests
 
 class ManagerAgent:
-    def __init__(self):
-        load_dotenv()
-        self.api_key = os.getenv("AI_API_KEY")
-        if not self.api_key:
-            raise ValueError("AI_API_KEY not found in environment variables")
-        self.provider = os.getenv("AI_PROVIDER", "xai").lower()
-        self.model = os.getenv("DEFAULT_MODEL", "gpt-4")
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4"):
+        self.api_key = api_key
+        self.provider = provider.lower()
+        self.model = model
         self.temperature = 0.7
+
 
     def analyze_brief(self, translation_type: str, brief: str, source_text: str = "") -> Dict:
         """
@@ -185,8 +183,34 @@ Format your response as a JSON object with the following structure:
             return self._call_anthropic_api(messages)
         elif self.provider == "google":
             return self._call_google_api(messages)
+        elif self.provider == "openrouter":
+            return self._call_openrouter_api(messages)
         else:
             raise ValueError(f"Unsupported AI provider: {self.provider}")
+
+    def _call_openrouter_api(self, messages: List[Dict]) -> str:
+        """Call the OpenRouter API with the given messages."""
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+            "HTTP-Referer": "http://localhost:5173",  # Client URL
+            "X-Title": "Agentic AI Translator"
+        }
+        payload = {
+            "messages": messages,
+            "model": self.model,
+            "temperature": self.temperature
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            print("Error calling OpenRouter API:", e)
+            raise
 
     def _call_xai_api(self, messages: List[Dict]) -> str:
         """Call the XAI API with the given messages."""

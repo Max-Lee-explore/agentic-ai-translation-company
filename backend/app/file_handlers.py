@@ -5,7 +5,7 @@ from docx import Document
 from pptx import Presentation
 import json
 from bs4 import BeautifulSoup
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 
 class FileHandler:
@@ -96,27 +96,43 @@ class FileHandler:
         with open(file_path, 'r', encoding='utf-8') as file:
             return file.read()
 
-    def save_translated_file(self, translated_text: str, original_file: str, translation_details: dict = None) -> str:
+    def save_translated_file(self, translated_text: str, original_file: str, translation_details: dict = None, output_format: str = None) -> str:
         """
         Save the translated text to a file with the same format as the original.
-        If translation_details is provided, only the final translation (from 'Terminology Check') for each chunk is saved.
+        If translation_details is provided, the final step result for each chunk is saved.
         """
         # Get the file extension
-        _, ext = os.path.splitext(original_file)
+        _, original_ext = os.path.splitext(original_file)
+        
+        # Determine output extension
+        if output_format:
+            ext = f".{output_format.lower()}" if not output_format.startswith('.') else output_format.lower()
+        else:
+            ext = original_ext
         
         # Create output filename
-        output_file = original_file.replace(ext, f"_translated{ext}")
+        output_file = original_file.replace(original_ext, f"_translated{ext}")
         
         # Prepare the text to save
         if translation_details and 'chunks' in translation_details:
-            # Extract only the final translation for each chunk
+            # Extract the final translation for each chunk
             paragraphs = []
             for chunk in translation_details['chunks']:
+                # Try to get Terminology Check first, otherwise use the last step
+                final_result = None
                 for step in chunk['steps']:
                     if step['step'] == 'Terminology Check':
-                        paragraphs.append(step['result'])
+                        final_result = step['result']
                         break
-            text_to_save = paragraphs
+                
+                # If no Terminology Check, use the last step (Improvement)
+                if not final_result and chunk['steps']:
+                    final_result = chunk['steps'][-1]['result']
+                
+                if final_result:
+                    paragraphs.append(final_result)
+            
+            text_to_save = paragraphs if paragraphs else [translated_text]
         else:
             # Fallback: use the provided translated_text as a single block
             text_to_save = [translated_text]
@@ -158,4 +174,36 @@ class FileHandler:
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(details, f, ensure_ascii=False, indent=2)
         
-        return output_file 
+        return output_file
+
+    def parse_glossary(self, file_path: str) -> dict:
+        """
+        Parse a glossary file (Excel or CSV) into a dictionary.
+        Expected format: First row contains language names, subsequent rows contain terms.
+        Returns a dictionary where keys are source terms and values are target terms.
+        """
+        import pandas as pd
+        
+        ext = os.path.splitext(file_path)[1].lower()
+        try:
+            if ext in ['.xlsx', '.xls']:
+                df = pd.read_excel(file_path)
+            elif ext == '.csv':
+                df = pd.read_csv(file_path)
+            else:
+                raise ValueError("Unsupported glossary format. Please use .xlsx, .xls, or .csv")
+            
+            # Basic validation: need at least 2 columns
+            if len(df.columns) < 2:
+                raise ValueError("Glossary must have at least 2 columns (Source Language and Target Language)")
+            
+            # Convert to dictionary (assuming first column is source, second is target for now)
+            # In a real scenario, we might want to map specific language names
+            glossary = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
+            
+            # Clean up dictionary (remove NaNs, empty strings)
+            return {str(k).strip(): str(v).strip() for k, v in glossary.items() if pd.notna(k) and pd.notna(v)}
+            
+        except Exception as e:
+            print(f"Error parsing glossary: {e}")
+            raise 

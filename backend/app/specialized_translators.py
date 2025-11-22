@@ -4,14 +4,12 @@ from dotenv import load_dotenv
 import requests
 
 class BaseTranslator:
-    def __init__(self):
-        load_dotenv()
-        self.api_key = os.getenv("AI_API_KEY")
-        if not self.api_key:
-            raise ValueError("AI_API_KEY not found in environment variables")
-        self.provider = os.getenv("AI_PROVIDER", "xai").lower()
-        self.model = os.getenv("DEFAULT_MODEL", "gpt-4")
-        self.temperature = 0.7  # Default temperature
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.7):
+        self.api_key = api_key
+        self.provider = provider.lower()
+        self.model = model
+        self.temperature = temperature
+
 
     def call_ai_api(self, messages: List[Dict]) -> str:
         """Call the appropriate AI API based on the provider."""
@@ -23,8 +21,34 @@ class BaseTranslator:
             return self._call_anthropic_api(messages)
         elif self.provider == "google":
             return self._call_google_api(messages)
+        elif self.provider == "openrouter":
+            return self._call_openrouter_api(messages)
         else:
             raise ValueError(f"Unsupported AI provider: {self.provider}")
+
+    def _call_openrouter_api(self, messages: List[Dict]) -> str:
+        """Call the OpenRouter API with the given messages."""
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+            "HTTP-Referer": "http://localhost:5173",  # Client URL
+            "X-Title": "Agentic AI Translator"
+        }
+        payload = {
+            "messages": messages,
+            "model": self.model,
+            "temperature": self.temperature
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            print("Error calling OpenRouter API:", e)
+            raise
 
     def _call_xai_api(self, messages: List[Dict]) -> str:
         """Call the XAI API with the given messages."""
@@ -125,9 +149,8 @@ class BaseTranslator:
             raise
 
 class LiteraryTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("LITERARY_TEMPERATURE", "0.8"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.8):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are a Literary Translation Specialist with expertise in translating creative works. 
 Your role is to preserve the artistic and emotional qualities of the original text while ensuring natural flow in the target language."""
 
@@ -157,9 +180,8 @@ Translation:"""
         return self.call_ai_api(messages)
 
 class LegalTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("LEGAL_TEMPERATURE", "0.65"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.65):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are a Legal Translation Specialist with expertise in translating legal documents. 
 Your role is to ensure precise and accurate translation of legal terminology while maintaining the formal and professional tone required in legal documents."""
 
@@ -189,9 +211,8 @@ Translation:"""
         return self.call_ai_api(messages)
 
 class MasterTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("MASTER_TEMPERATURE", "0.7"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.7):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are a Master Translator with expertise in multiple translation styles and domains.
 You can adapt your translation approach based on the specific requirements and style guidelines provided."""
 
@@ -226,9 +247,8 @@ Translation:"""
         return self.call_ai_api(messages)
 
 class NewsTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("NEWS_TEMPERATURE", "0.7"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.7):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are a News Translation Specialist with expertise in translating news articles and journalistic content.
 Your role is to maintain journalistic style, accuracy, and immediacy while adapting content for different cultural contexts."""
 
@@ -258,9 +278,8 @@ Translation:"""
         return self.call_ai_api(messages)
 
 class AcademicTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("ACADEMIC_TEMPERATURE", "0.7"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.7):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are an Academic Translation Specialist with expertise in translating scholarly works.
 Your role is to maintain academic rigor, precision, and formal tone while ensuring accessibility in the target language."""
 
@@ -290,9 +309,8 @@ Translation:"""
         return self.call_ai_api(messages)
 
 class TechnicalTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("TECHNICAL_TEMPERATURE", "0.65"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.65):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are a Technical Translation Specialist with expertise in translating technical documentation.
 Your role is to maintain technical accuracy while ensuring clarity and usability in the target language."""
 
@@ -322,9 +340,8 @@ Translation:"""
         return self.call_ai_api(messages)
 
 class MedicalTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("MEDICAL_TEMPERATURE", "0.6"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.6):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are a Medical Translation Specialist with expertise in translating medical content.
 Your role is to maintain medical accuracy while ensuring clarity and sensitivity in the target language."""
 
@@ -354,9 +371,8 @@ Translation:"""
         return self.call_ai_api(messages)
 
 class MarketingTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("MARKETING_TEMPERATURE", "0.8"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.8):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are a Marketing Translation Specialist with expertise in translating marketing content.
 Your role is to maintain brand voice and marketing impact while adapting content for different cultural markets."""
 
@@ -386,9 +402,8 @@ Translation:"""
         return self.call_ai_api(messages)
 
 class BusinessTranslator(BaseTranslator):
-    def __init__(self):
-        super().__init__()
-        self.temperature = float(os.getenv("BUSINESS_TEMPERATURE", "0.7"))
+    def __init__(self, api_key: str, provider: str = "openrouter", model: str = "gpt-4", temperature: float = 0.7):
+        super().__init__(api_key, provider, model, temperature)
         self.system_role = """You are a Business Translation Specialist with expertise in translating business content.
 Your role is to maintain professional tone and business accuracy while ensuring cultural appropriateness."""
 
